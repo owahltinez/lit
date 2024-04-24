@@ -222,7 +222,10 @@ def main(argv: Sequence[str]) -> Optional[dev_server.LitServerType]:
     # LIT wrappers) to limit the potenital for improperly configured backends.
     import keras  # pylint: disable=g-import-not-at-top
 
-    keras.config.set_floatx(_PRECISION.value)
+    if _PRECISION.value == "bfloat16":
+      keras.mixed_precision.set_global_policy("mixed_float16")
+    else:
+      keras.backend.set_floatx(_PRECISION.value)
   elif _DL_BACKEND.value == "torch":
     # NOTE: Keras sets precision for all backends with set_floatx(), but for
     # HuggingFace Transformers with PyTorch we need to set it explicitly.
@@ -279,10 +282,14 @@ def main(argv: Sequence[str]) -> Optional[dev_server.LitServerType]:
     model_name, path = model_string.split(":", 1)
     logging.info("Loading model '%s' from '%s'", model_name, path)
 
-    path = file_cache.cached_path(
-        path,
-        extract_compressed_file=path.endswith(".tar.gz"),
-    )
+    # Attempt to load model weights directly from a local or remote path.
+    try:
+      path = file_cache.cached_path(
+          path,
+          extract_compressed_file=path.endswith(".tar.gz"),
+      )
+    except:
+      logging.info("Unable to load model from '%s'", path)
 
     if _DL_FRAMEWORK.value == "kerasnlp":
       # pylint: disable=g-import-not-at-top
