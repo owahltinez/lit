@@ -16,7 +16,7 @@
 
 import os
 
-_DEMO_NAME = os.getenv('DEMO_NAME', 'glue_demo')
+_DEMO_NAME = os.getenv('DEMO_NAME', 'blank_slate_demo')
 _DEMO_PORT = os.getenv('DEMO_PORT', '5432')
 
 bind = f'0.0.0.0:{_DEMO_PORT}'
