@@ -16,6 +16,10 @@
 # https://hub.docker.com/_/python
 FROM python:3.10-slim
 
+# Build arguments.
+ARG FLAVOR='slim'
+RUN echo "Building image flavor: $FLAVOR"
+
 # Update Ubuntu packages and install basic utils
 RUN apt-get update
 RUN apt-get install -y wget curl gnupg2 gcc g++ git
@@ -34,6 +38,10 @@ WORKDIR $APP_HOME
 # This step is slow as it installs many packages.
 COPY ./requirements*.txt ./
 RUN python -m pip install -r requirements.txt
+
+# Install additional dependencies only building the full version.
+RUN if [ "$FLAVOR" = 'full' ] ; \
+    then python -m pip install -r requirements_examples.txt ; fi
 
 # Copy the rest of the lit_nlp package
 COPY . ./
