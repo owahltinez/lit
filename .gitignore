@@ -18,3 +18,4 @@ docs/documentation/.doctrees/**
 .tydi-venv/
 .venv/
 .vscode/
+kaggle.json
